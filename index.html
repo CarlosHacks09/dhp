@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>DHP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: rgba(26, 35, 126, 0.7);
+            --secondary: rgba(48, 63, 159, 0.8);
+            --text: #ffffff;
+            --correct: rgba(76, 175, 80, 0.9);
+            --wrong: rgba(244, 67, 54, 0.9);
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* Add this to center the quiz container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeIn 1s;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .quiz-container {
+            background: var(--primary);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideIn 0.5s;
+        }
+
+        .period-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .period-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 12px;
+            background: var(--secondary);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .period-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            background: rgba(48, 63, 159, 0.9);
+        }
+
+        .question {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: var(--glass);
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .option {
+            padding: 15px;
+            background: var(--secondary);
+            border: none;
+            border-radius: 10px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1rem;
+        }
+
+        .option:hover {
+            transform: translateX(10px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .correct {
+            background: var(--correct);
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .wrong {
+            background: var(--wrong);
+            box-shadow: 0 0 20px rgba(244, 67, 54, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        .emoji-reaction {
+            position: fixed;
+            font-size: 100px;
+            pointer-events: none;
+            animation: float 1s forwards;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes celebration {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .celebration-container {
+            text-align: center;
+            animation: celebration 1s ease-out;
+        }
+
+        .firework {
+            position: fixed;
+            pointer-events: none;
+            animation: firework 1s forwards;
+            font-size: 2rem;
+        }
+
+        @keyframes firework {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>DHP - Guía de Estudio</h1>
+        </div>
+
+        <div class="period-selector">
+            <button class="period-btn" onclick="filterPeriod(1)">Período 1</button>
+            <button class="period-btn" onclick="filterPeriod(2)">Período 2</button>
+            <button class="period-btn" onclick="filterPeriod(3)">Período 3</button>
+            <button class="period-btn" onclick="filterPeriod('all')">Todos</button>
+        </div>
+
+        <div id="quiz-container" class="quiz-container"></div>
+    </div>
+
+    <script>
+        const questions = [
+            // Período 1
+            {
+                period: 1,
+                question: "¿Qué es la metacognición?",
+                options: [
+                    "La capacidad de memorizar información sin analizarla.",
+                    "El proceso de aprendizaje automático del cerebro.",
+                    "La capacidad de pensar sobre los propios procesos de pensamiento.",
+                    "Un tipo específico de inteligencia emocional."
+                ],
+                correct: 2
+            },
+            {
+                period: 1,
+                question: "¿Cuál de las siguientes actividades es un ejemplo de metacognición?",
+                options: [
+                    "Resolver problemas matemáticos complejos.",
+                    "Reflexionar sobre la eficacia de una estrategia de estudio.",
+                    "Aprender un idioma nuevo rápidamente.",
+                    "Memorizar una lista de palabras sin analizarla."
+                ],
+                correct: 1
+            },
+            {
+                period: 1,
+                question: "¿Cómo ayuda la metacognición al aprendizaje?",
+                options: [
+                    "Al permitir recordar grandes cantidades de información automáticamente.",
+                    "Al fomentar la práctica de estudio repetitivo sin análisis.",
+                    "Al permitir evaluar y ajustar estrategias de aprendizaje.",
+                    "Al simplificar las conexiones neuronales del cerebro."
+                ],
+                correct: 2
+            },
+            {
+                period: 1,
+                question: "¿Qué estructura cerebral se asocia con funciones instintivas y de supervivencia?",
+                options: [
+                    "El neocórtex.",
+                    "El cerebro reptiliano.",
+                    "El sistema límbico.",
+                    "La amígdala."
+                ],
+                correct: 1
+            },
+            {
+                period: 1,
+                question: "¿Qué cerebro evolutivo está relacionado con emociones y memoria?",
+                options: [
+                    "Neocórtex.",
+                    "Cerebro reptiliano.",
+                    "Sistema límbico.",
+                    "Médula espinal."
+                ],
+                correct: 2
+            },
+            {
+                period: 1,
+                question: "¿Qué cerebro humano es responsable del pensamiento racional y el lenguaje?",
+                options: [
+                    "Cerebro reptiliano.",
+                    "Neocórtex.",
+                    "Sistema límbico.",
+                    "Hipotálamo."
+                ],
+                correct: 1
+            },
+            {
+                period: 1,
+                question: "¿Qué estructura cerebral desempeña un papel importante en la toma de decisiones?",
+                options: [
+                    "Cerebelo.",
+                    "Lóbulo frontal.",
+                    "Hipotálamo.",
+                    "Tálamo."
+                ],
+                correct: 1
+            },
+            {
+                period: 1,
+                question: "¿Qué función realiza principalmente el hipocampo?",
+                options: [
+                    "Controlar el equilibrio.",
+                    "Procesar recuerdos y aprendizaje espacial.",
+                    "Regular los latidos del corazón.",
+                    "Coordinar movimientos musculares."
+                ],
+                correct: 1
+            },
+            {
+                period: 1,
+                question: "¿Qué lóbulo cerebral se asocia con el procesamiento visual?",
+                options: [
+                    "Frontal.",
+                    "Temporal.",
+                    "Parietal.",
+                    "Occipital."
+                ],
+                correct: 3
+            },
+
+            {
+                period: 1,
+                question: "¿Cuál es un factor clave para el aprendizaje efectivo?",
+                options: [
+                    "Estudiar todo el contenido en una sola sesión.",
+                    "Aumentar el nivel de estrés durante el estudio.",
+                    "Fomentar la neuroplasticidad a través de la práctica repetida.",
+                    "Evitar el uso de estímulos emocionales."
+                ],
+                correct: 2
+            },
+            {
+                period: 1,
+                question: "¿Cómo afecta el sueño al aprendizaje?",
+                options: [
+                    "Reduce la capacidad de consolidar información.",
+                    "Favorece la consolidación de la memoria y el aprendizaje.",
+                    "No tiene relación directa con el aprendizaje.",
+                    "Aumenta la velocidad de procesamiento sin afectar la memoria."
+                ],
+                correct: 1
+            },
+            {
+                period: 1,
+                question: "¿Qué es un neuromito?",
+                options: [
+                    "Una creencia errónea sobre el cerebro y el aprendizaje.",
+                    "Una teoría científica comprobada sobre el cerebro.",
+                    "Una técnica de estudio basada en la neuroplasticidad.",
+                    "Un hecho sobre el cerebro que pocos conocen."
+                ],
+                correct: 0
+            },
+            {
+                period: 1,
+                question: "¿Cuál de los siguientes es un neuromito?",
+                options: [
+                    "Solo usamos el 10% de nuestro cerebro.",
+                    "La práctica repetida mejora las conexiones neuronales.",
+                    "El sueño ayuda en la consolidación de la memoria.",
+                    "La dieta afecta el funcionamiento cerebral."
+                ],
+                correct: 0
+            },
+            {
+                period: 1,
+                question: "¿Por qué es importante desmentir los neuromitos?",
+                options: [
+                    "Porque no afectan directamente el aprendizaje.",
+                    "Porque perpetúan prácticas educativas ineficaces.",
+                    "Porque mejoran la creatividad.",
+                    "Porque aumentan el estrés académico."
+                ],
+                correct: 1
+            },
+            {
+                period: 1,
+                question: "¿Qué tipo de preguntas fomenta la metacognición?",
+                options: [
+                    "Preguntas sobre cómo otros entienden un tema",
+                    "Preguntas que evalúan cómo se comprende y aplica un concepto",
+                    "Preguntas sobre datos concretos sin contexto",
+                    "Preguntas que no requieren análisis"
+                ],
+                correct: 1
+            },
+            {
+                period: 1,
+                question: "¿Qué estrategia mejora la metacognición en el aprendizaje?",
+                options: [
+                    "Reflexionar sobre lo aprendido y planificar los próximos pasos",
+                    "Leer sin cuestionar el material",
+                    "Memorizar términos clave sin analizar",
+                    "Cambiar constantemente de método de estudio"
+                ],
+                correct: 0
+            },
+            {
+                period: 1,
+                question: "¿Qué caracteriza al neocórtex en comparación con las otras partes del cerebro?",
+                options: [
+                    "Es la región más antigua evolutivamente",
+                    "Está involucrado en funciones avanzadas como el razonamiento y el lenguaje",
+                    "Es responsable únicamente de los reflejos básicos",
+                    "Controla exclusivamente las emociones"
+                ],
+                correct: 1
+            },
+            {
+                period: 1,
+                question: "¿Cuál es una característica clave del sistema límbico?",
+                options: [
+                    "Procesar estímulos visuales de forma detallada",
+                    "Regular emociones y comportamiento social",
+                    "Controlar únicamente la respiración y el ritmo cardíaco",
+                    "Generar respuestas automáticas sin análisis"
+                ],
+                correct: 1
+            },
+            {
+                period: 1,
+                question: "¿Qué estructura cerebral está más asociada con el pensamiento lógico y la toma de decisiones?",
+                options: [
+                    "Hipotálamo",
+                    "Corteza prefrontal",
+                    "Amígdala",
+                    "Tronco encefálico"
+                ],
+                correct: 1
+            },
+            {
+                period: 1,
+                question: "¿Cómo interactúan el sistema límbico y el neocórtex en el proceso de pensamiento?",
+                options: [
+                    "El sistema límbico se encarga de las emociones y el neocórtex analiza de manera racional",
+                    "Ambos funcionan por separado y no interactúan",
+                    "El sistema límbico procesa el lenguaje mientras el neocórtex regula el ritmo cardíaco",
+                    "El neocórtex genera emociones que son reguladas por el sistema límbico"
+                ],
+                correct: 0
+            },
+            // Period 2 questions
+            {
+                period: 2,
+                question: "¿Cuál de las siguientes es una función ejecutiva?",
+                options: [
+                    "Control motor fino",
+                    "Memoria de trabajo",
+                    "Percepción visual",
+                    "Regulación de la temperatura corporal"
+                ],
+                correct: 1
+            },
+            {
+                period: 2,
+                question: "¿Qué área cerebral está más asociada con las funciones ejecutivas?",
+                options: [
+                    "Lóbulo parietal",
+                    "Lóbulo frontal",
+                    "Cerebelo",
+                    "Hipotálamo"
+                ],
+                correct: 1
+            },
+            {
+                period: 2,
+                question: "¿Qué función ejecutiva permite cambiar de tarea rápidamente?",
+                options: [
+                    "Inhibición",
+                    "Memoria de trabajo",
+                    "Flexibilidad cognitiva",
+                    "Atención selectiva"
+                ],
+                correct: 2
+            },
+            {
+                period: 2,
+                question: "¿Qué es clave para una buena organización del tiempo?",
+                options: [
+                    "Dejar todas las tareas para último momento",
+                    "Utilizar una agenda o calendario para priorizar actividades",
+                    "Estudiar solo cuando hay motivación",
+                    "Dedicar más tiempo a las materias fáciles"
+                ],
+                correct: 1
+            },
+            {
+                period: 2,
+                question: "¿Qué técnica puede mejorar la gestión del tiempo?",
+                options: [
+                    "Dividir tareas grandes en metas pequeñas y alcanzables",
+                    "Evitar las pausas durante el estudio",
+                    "Dedicar más tiempo a actividades de ocio",
+                    "Cambiar constantemente de estrategia de estudio"
+                ],
+                correct: 0
+            },
+            {
+                period: 2,
+                question: "¿Qué caracteriza a un buen apunte?",
+                options: [
+                    "Contiene todos los detalles posibles de la clase",
+                    "Está organizado, es claro y resalta ideas clave",
+                    "Se escribe de manera apresurada sin revisar",
+                    "Es una copia literal del libro de texto"
+                ],
+                correct: 1
+            },
+            {
+                period: 2,
+                question: "¿Por qué es útil usar códigos de colores en los apuntes?",
+                options: [
+                    "Para hacerlos visualmente atractivos",
+                    "Para identificar y priorizar información clave",
+                    "Para evitar escribir demasiado",
+                    "Porque mejora la caligrafía"
+                ],
+                correct: 1
+            },
+            {
+                period: 2,
+                question: "¿Qué es la práctica de estudio espaciado?",
+                options: [
+                    "Estudiar toda la información en un solo día",
+                    "Alternar entre temas diferentes durante una sesión",
+                    "Distribuir las sesiones de estudio a lo largo del tiempo",
+                    "Repetir la información sin descansos"
+                ],
+                correct: 2
+            },
+            {
+                period: 2,
+                question: "¿Por qué es eficaz la práctica de estudio espaciado?",
+                options: [
+                    "Reduce la carga cognitiva al evitar la repetición constante",
+                    "Permite que el cerebro consolide información entre sesiones",
+                    "Obliga al cerebro a aprender más rápidamente",
+                    "Evita que la información sea olvidada por completo"
+                ],
+                correct: 1
+            },
+            {
+                period: 2,
+                question: "¿Qué implica la práctica de estudio intercalado?",
+                options: [
+                    "Cambiar de ambiente de estudio con frecuencia",
+                    "Alternar entre diferentes temas o habilidades durante una sesión",
+                    "Repetir la misma actividad varias veces antes de pasar a otra",
+                    "Completar tareas en el orden en que se asignan"
+                ],
+                correct: 1
+            },
+            {
+                period: 2,
+                question: "¿Qué ventaja tiene la práctica intercalada sobre estudiar un solo tema?",
+                options: [
+                    "Facilita la memorización a corto plazo",
+                    "Desarrolla habilidades de generalización y transferencia",
+                    "Reduce el tiempo necesario para cada sesión de estudio",
+                    "Hace el estudio más rápido y predecible"
+                ],
+                correct: 1
+            },
+            {
+                period: 2,
+                question: "¿Qué función ejecutiva permite suprimir impulsos automáticos para comportarse de forma adecuada?",
+                options: [
+                    "Memoria de trabajo",
+                    "Inhibición",
+                    "Planificación",
+                    "Flexibilidad cognitiva"
+                ],
+                correct: 1
+            },
+            {
+                period: 2,
+                question: "¿Cuál de las siguientes actividades requiere el uso de la memoria de trabajo?",
+                options: [
+                    "Recordar un número de teléfono mientras se marca",
+                    "Identificar patrones visuales en una imagen",
+                    "Caminar automáticamente hacia un destino conocido",
+                    "Dormir para consolidar la memoria"
+                ],
+                correct: 0
+            },
+            {
+                period: 2,
+                question: "¿Qué función ejecutiva está involucrada en la creación de planes a largo plazo?",
+                options: [
+                    "Flexibilidad cognitiva",
+                    "Planificación",
+                    "Atención dividida",
+                    "Inhibición"
+                ],
+                correct: 1
+            },
+            {
+                period: 2,
+                question: "¿Qué herramienta es útil para priorizar tareas y organizar el tiempo?",
+                options: [
+                    "Un cronómetro para limitar sesiones",
+                    "Una lista de tareas organizada por importancia",
+                    "Memorizar las tareas en el orden que surgen",
+                    "Un diario personal sin formato estructurado"
+                ],
+                correct: 1
+            },
+            {
+                period: 2,
+                question: "¿Cómo se puede implementar la práctica espaciada?",
+                options: [
+                    "Estudiando un tema hoy y revisándolo unos días después",
+                    "Dedicando horas continuas a un solo tema",
+                    "Realizando pausas largas sin revisar material anterior",
+                    "Repetir la misma tarea durante horas seguidas"
+                ],
+                correct: 0
+            },
+            {
+                period: 2,
+                question: "¿Cómo beneficia la práctica intercalada al aprendizaje?",
+                options: [
+                    "Mejora la capacidad de aplicar conocimientos en contextos nuevos",
+                    "Simplifica la memorización de conceptos aislados",
+                    "Reduce la carga cognitiva al eliminar distracciones",
+                    "Facilita recordar solo temas específicos"
+                ],
+                correct: 0
+            },
+            {
+                period: 2,
+                question: "¿Qué herramienta mejora la claridad de los apuntes?",
+                options: [
+                    "Usar viñetas y palabras clave",
+                    "Escribir en párrafos largos y detallados",
+                    "Evitar diagramas y esquemas",
+                    "Copiar todo lo dicho por el maestro sin filtrar"
+                ],
+                correct: 0
+            },
+            {
+                period: 2,
+                question: "¿Qué combinación de estrategias es más efectiva para el aprendizaje?",
+                options: [
+                    "Repetir, memorizar y releer",
+                    "Practicar recuperación, intercalar y espaciar el estudio",
+                    "Leer superficialmente y memorizar rápidamente",
+                    "Subrayar conceptos y releerlos sin analizar"
+                ],
+                correct: 1
+            },
+            {
+                period: 2,
+                question: "¿Qué efecto tiene la práctica de recuperación en la memoria a largo plazo?",
+                options: [
+                    "Refuerza las conexiones neuronales al recordar información",
+                    "Ayuda a almacenar solo la información más relevante",
+                    "Disminuye la capacidad de procesar nueva información",
+                    "Solo es útil para evaluaciones inmediatas"
+                ],
+                correct: 0
+            },
+            // Add these Period 3 questions
+            {
+                period: 3,
+                question: "¿Qué es la retrieval practice?",
+                options: [
+                    "Leer nuevamente los apuntes para reforzar la memoria",
+                    "Recuperar activamente información de la memoria sin apoyo",
+                    "Memorizar datos utilizando imágenes",
+                    "Tomar exámenes solo para evaluar el conocimiento"
+                ],
+                correct: 1
+            },
+            {
+                period: 3,
+                question: "¿Cuál de estas actividades es un ejemplo de retrieval practice?",
+                options: [
+                    "Hacer preguntas sobre el contenido aprendido sin mirar los apuntes",
+                    "Subrayar las ideas clave en un texto",
+                    "Escuchar una grabación de una clase varias veces",
+                    "Organizar apuntes de forma visual"
+                ],
+                correct: 0
+            },
+            {
+                period: 3,
+                question: "¿Qué busca la técnica de codificación en el aprendizaje?",
+                options: [
+                    "Simplificar el contenido usando analogías y resúmenes visuales",
+                    "Leer repetidamente un texto hasta memorizarlo",
+                    "Subrayar conceptos importantes en un solo color",
+                    "Reorganizar ideas de forma cronológica sin analizar"
+                ],
+                correct: 0
+            },
+            {
+                period: 3,
+                question: "¿Cuál es un ejemplo de codificación en el estudio?",
+                options: [
+                    "Crear mapas conceptuales o esquemas",
+                    "Copiar textualmente los apuntes del maestro",
+                    "Resolver ejercicios sin relacionarlos con otros temas",
+                    "Leer sin hacer pausas reflexivas"
+                ],
+                correct: 0
+            },
+            {
+                period: 3,
+                question: "¿Qué busca la técnica de interrogación elaborativa?",
+                options: [
+                    "Repetir información de forma mecánica",
+                    "Responder preguntas que relacionen conceptos con experiencias previas",
+                    "Memorizar sin analizar el contenido",
+                    "Subrayar conceptos importantes"
+                ],
+                correct: 1
+            },
+            {
+                period: 3,
+                question: "¿Qué pregunta es típica de la interrogación elaborativa?",
+                options: [
+                    "¿Por qué es cierto este concepto?",
+                    "¿Qué página del libro menciona esto?",
+                    "¿Cuál es el nombre técnico del tema?",
+                    "¿Cuánto tiempo debo dedicar a este contenido?"
+                ],
+                correct: 0
+            },
+            {
+                period: 3,
+                question: "¿Cómo influye el lenguaje en el aprendizaje?",
+                options: [
+                    "Facilita la estructuración del pensamiento y la comunicación de ideas",
+                    "Es irrelevante para procesos de razonamiento abstracto",
+                    "Ayuda únicamente a la memorización de términos",
+                    "Sustituye el razonamiento lógico con intuición"
+                ],
+                correct: 0
+            },
+            {
+                period: 3,
+                question: "¿Qué estructura cerebral es clave en el desarrollo del lenguaje?",
+                options: [
+                    "Amígdala",
+                    "Área de Broca",
+                    "Hipotálamo",
+                    "Cerebelo"
+                ],
+                correct: 1
+            },
+            {
+                period: 3,
+                question: "¿Qué elementos son esenciales en el proceso de conocimiento?",
+                options: [
+                    "Lenguaje, memoria, percepción y atención",
+                    "Memoria muscular y reflejos instintivos",
+                    "Aprendizaje automático y reflejos",
+                    "Exclusivamente el razonamiento lógico"
+                ],
+                correct: 0
+            },
+            {
+                period: 3,
+                question: "¿Cómo se define el conocimiento en el contexto del aprendizaje?",
+                options: [
+                    "La acumulación de datos aislados",
+                    "La capacidad de recordar información específica",
+                    "La integración de información para interpretar y comprender el mundo",
+                    "El uso de habilidades motrices para resolver problemas"
+                ],
+                correct: 2
+            },
+            {
+                period: 3,
+                question: "¿Qué papel desempeña el lenguaje en la construcción del conocimiento?",
+                options: [
+                    "Organizar y dar significado a la experiencia",
+                    "Reforzar únicamente habilidades manuales",
+                    "Aumentar la velocidad de memorización",
+                    "Limitar la interpretación personal del aprendizaje"
+                ],
+                correct: 0
+            },
+            {
+                period: 3,
+                question: "¿Qué técnica puede ayudar a fortalecer el conocimiento a través del lenguaje?",
+                options: [
+                    "Debatir ideas con otros",
+                    "Copiar frases del texto sin analizarlas",
+                    "Memorizar sin realizar conexiones con otros conceptos",
+                    "Evitar el uso de metáforas y ejemplos"
+                ],
+                correct: 0
+            },
+            {
+                period: 3,
+                question: "¿Qué es esencial para comprender un texto?",
+                options: [
+                    "Tener vocabulario previo sobre el tema",
+                    "Memorizar el texto palabra por palabra",
+                    "Leer sin pausas",
+                    "Subrayar aleatoriamente"
+                ],
+                correct: 0
+            },
+            {
+                period: 3,
+                question: "¿Qué actitud es importante para comprender a alguien?",
+                options: [
+                    "Escuchar activamente y con empatía",
+                    "Hablar sin esperar una respuesta",
+                    "Interrumpir para dar soluciones rápidas",
+                    "Evitar preguntar dudas"
+                ],
+                correct: 0
+            },
+            {
+                period: 3,
+                question: "¿Qué herramienta es útil para organizar información de un texto?",
+                options: [
+                    "Crear un esquema o mapa conceptual",
+                    "Leer sin detenerse",
+                    "Memorizar párrafos completos",
+                    "Subrayar todo el texto"
+                ],
+                correct: 0
+            },
+            {
+                period: 3,
+                question: "¿Qué es esencial para comprender un texto?",
+                options: [
+                    "Relacionar ideas clave con conceptos previos",
+                    "Leer una sola vez para captar lo básico",
+                    "Ignorar palabras desconocidas",
+                    "Enfocarse solo en los gráficos del texto"
+                ],
+                correct: 0
+            },
+            // Add these final Period 3 questions
+            {
+                period: 3,
+                question: "¿Cuál es un error común al usar la retrieval practice?",
+                options: [
+                    "Depender de materiales de apoyo durante la práctica",
+                    "Realizar preguntas abiertas y responder sin consultar apuntes",
+                    "Alternar temas durante la recuperación",
+                    "Usar la práctica como único método de estudio"
+                ],
+                correct: 0
+            },
+            {
+                period: 3,
+                question: "¿Qué pregunta fomenta mejor la interrogación elaborativa?",
+                options: [
+                    "¿Cómo se relaciona este concepto con otro que ya conozco?",
+                    "¿Qué partes debo memorizar de este tema?",
+                    "¿Cuánto tiempo dedicaré a este tema?",
+                    "¿Qué recursos puedo usar para resolver esto rápidamente?"
+                ],
+                correct: 0
+            },
+            {
+                period: 3,
+                question: "¿Cuál de las siguientes técnicas es efectiva para organizar información escrita?",
+                options: [
+                    "Crear un resumen con los puntos clave del texto",
+                    "Leer sin detenerse en cada sección",
+                    "Subrayar todo el texto sin distinguir ideas principales",
+                    "Memorizar los títulos y subtítulos del texto"
+                ],
+                correct: 0
+            },
+            {
+                period: 3,
+                question: "¿Cómo influye el lenguaje en la mediación del conocimiento?",
+                options: [
+                    "Permite articular y compartir ideas, facilitando el aprendizaje colaborativo",
+                    "Limita la capacidad de los estudiantes para explorar temas de manera autónoma",
+                    "Sustituye el razonamiento lógico con experiencias emocionales",
+                    "Facilita el aprendizaje solo en contextos visuales"
+                ],
+                correct: 0
+            }
+        ];
+
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        const correctSound = new Audio('https://www.myinstants.com/media/sounds/correct.mp3');
+        const wrongSound = new Audio('https://www.myinstants.com/media/sounds/answer-wrong.mp3');
+        const victorySound = new Audio('https://www.myinstants.com/media/sounds/victoryff.swf.mp3');
+
+        function showEmoji(isCorrect, x, y) {
+            const emoji = document.createElement('div');
+            emoji.className = 'emoji-reaction';
+            emoji.textContent = isCorrect ? '🎉' : '😢';
+            emoji.style.left = x + 'px';
+            emoji.style.top = y + 'px';
+            document.body.appendChild(emoji);
+            setTimeout(() => emoji.remove(), 1000);
+        }
+
+        let currentPeriod = 'all';
+        let answeredQuestions = new Set();
+
+        function filterPeriod(period) {
+            currentPeriod = period;
+            // Reset answered questions when changing periods
+            answeredQuestions.clear();
+            currentQuestions = period === 'all'
+                ? [...questions]
+                : questions.filter(q => q.period === period);
+            shuffleQuestions();
+            currentQuestionIndex = 0;
+            displayCurrentQuestion();
+        }
+
+        function getNextUnansweredQuestion() {
+            for (let i = 0; i < currentQuestions.length; i++) {
+                if (!answeredQuestions.has(i)) {
+                    return i;
+                }
+            }
+            return -1; // All questions answered
+        }
+
+        function checkAnswer(element, correctIndex, event) {
+            const isCorrect = element.dataset.index == correctIndex;
+            element.classList.add(isCorrect ? 'correct' : 'wrong');
+
+            if (isCorrect) {
+                correctSound.play();
+                showEmoji(true, event.clientX, event.clientY);
+                // Add current question to answered set
+                answeredQuestions.add(currentQuestionIndex);
+
+                setTimeout(() => {
+                    const nextIndex = getNextUnansweredQuestion();
+                    if (nextIndex >= 0) {
+                        currentQuestionIndex = nextIndex;
+                        displayCurrentQuestion();
+                    } else {
+                        // All questions answered - show celebration
+                        document.getElementById('quiz-container').innerHTML = `
+                            <div class="celebration-container">
+                                <h2 style="font-size: 2em">¡FELICITACIONES! 🏆</h2>
+                                <p style="font-size: 1.2em">Has completado todas las preguntas ${currentPeriod === 'all' ? 'del quiz' : `del Período ${currentPeriod}`}!</p>
+                                <div id="fireworks"></div>
+                                <button class="period-btn" onclick="filterPeriod(currentPeriod)">Reiniciar</button>
+                            </div>
+                        `;
+                        victorySound.play();
+                        createFireworks();
+                    }
+                }, 1000);
+            } else {
+                wrongSound.play();
+                showEmoji(false, event.clientX, event.clientY);
+                setTimeout(() => {
+                    element.classList.remove('wrong');
+                }, 1000);
+            }
+        }
+
+        function shuffleQuestions() {
+            for (let i = currentQuestions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentQuestions[i], currentQuestions[j]] = [currentQuestions[j], currentQuestions[i]];
+            }
+        }
+
+        function displayCurrentQuestion() {
+            const q = currentQuestions[currentQuestionIndex];
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = `
+                <div class="question">
+                    <p>Pregunta ${currentQuestionIndex + 1} de ${currentQuestions.length}</p>
+                    <h3>${q.question}</h3>
+                    <div class="options">
+                        ${q.options.map((opt, i) => `
+                            <button class="option" 
+                                    data-index="${i}"
+                                    onclick="checkAnswer(this, ${q.correct}, event)">
+                                ${['a', 'b', 'c', 'd'][i]}) ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Add this new function
+        function createFireworks() {
+            const emojis = ['🎉', '✨', '🌟', '💫', '🎆'];
+            const fireworksContainer = document.getElementById('fireworks');
+
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    firework.style.left = Math.random() * 80 + 10 + '%';
+                    firework.style.top = Math.random() * 50 + 25 + '%';
+                    fireworksContainer.appendChild(firework);
+
+                    setTimeout(() => firework.remove(), 1000);
+                }, i * 100);
+            }
+        }
+
+        // Initialize with all questions
+        filterPeriod('all');
+    </script>
+</body>
+
+</html>
